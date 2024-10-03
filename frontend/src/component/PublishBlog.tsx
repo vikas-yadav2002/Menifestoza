@@ -86,18 +86,7 @@ const PublishBlog: React.FC = () => {
               : 'bg-white text-gray-800 border-gray-300 focus:border-blue-500'
           } focus:outline-none transition-all duration-300`}
         />
-        {/* <textarea
-          placeholder="Content goes here"
-          value={blogInputs.content}
-          onChange={(e) =>
-            setBlogInputs({ ...blogInputs, content: e.target.value })
-          }
-          className={`w-full h-64 text-lg p-3 border rounded-lg resize-y ${
-            DarkTheme
-              ? 'bg-gray-700 text-white border-gray-600 focus:ring-blue-400'
-              : 'bg-white text-gray-800 border-gray-300 focus:ring-blue-500'
-          } focus:outline-none focus:ring-2 transition-all duration-300`}
-        /> */}
+       
         <ReactQuill
         className={`w-full h-64 text-lg p-3 mb-10 ${
           DarkTheme
@@ -124,7 +113,7 @@ const PublishBlog: React.FC = () => {
         >
           {loading ? <Spinner /> : 'Publish Blog'}
         </button>
-        {blogInputs.content}
+        
       </div>
     </div>
   );
