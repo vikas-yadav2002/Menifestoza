@@ -1,0 +1,1 @@
+export const BACKEND_URL = "https://0a349820-488f-48a9-9407-74f7f9dcae83-00-205959za617yu.kirk.replit.dev:3001/"
