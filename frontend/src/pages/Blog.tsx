@@ -8,6 +8,7 @@ import ThemeFunction from "../context/ThemeContext"
 
 
 const Blog = () => {
+
   const { DarkTheme } = ThemeFunction();
   const {id} = useParams()
   const { loading , blog } = Useblog({
