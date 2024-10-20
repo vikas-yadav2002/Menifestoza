@@ -85,7 +85,7 @@ const NavBar = () => {
                             <>
                             {/* causing problem have to fix this  */}
 
-
+                          { /* todo : can take username from login and display here  */}
                                 <Avatar name={
                                         user ? "username" : 'Guest'
                                     }
