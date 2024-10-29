@@ -14,6 +14,11 @@ const app = new Hono<{
 }>();
 
 app.use('/api/*', cors());
+app.get('/' , async (c)=>{
+    return c.json({
+        message: "incorrect details",
+      });
+})
 
 app.use("/api/v1/blog/*", async (c, next) => {
     const headers = c.req.header("authorization") || "";

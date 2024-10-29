@@ -52,8 +52,8 @@ Userouter.post("/signup", async (c) => {
     });
   } catch (error) {
     console.log(error);
-    // return c.json({ error: "Failed to generate token", err: error }, 500);
-    return c.text(error)
+    return c.json({ error: "Failed to generate token", err: error }, 500);
+    // return c.text(error)
   }
 });
 
