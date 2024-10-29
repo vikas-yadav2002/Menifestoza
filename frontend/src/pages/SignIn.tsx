@@ -6,7 +6,8 @@ import { BACKEND_URL } from '../config.ts'
 import Spinner from '../component/Spinner.tsx'
 
 const SignIn = () => {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [username , setUsername] = useState("");
   const navigate = useNavigate();
   const [inputs, setInputs] = useState<SigninInput>({
     username: "",
@@ -20,6 +21,7 @@ const SignIn = () => {
       const response = await axios.post(`${BACKEND_URL}api/v1/user/signin`, inputs)
       const token = response.data;
       localStorage.setItem("token", token.token);
+      localStorage.setItem("username" , username)
       alert("Signed in successfully");
       setLoading(false);
       navigate('/blogs')
@@ -29,6 +31,11 @@ const SignIn = () => {
       alert("Error while signing in")
       setLoading(false);
     }
+  }
+
+  const UsernameInput= (e:any) =>{
+    setUsername(e.target.value);
+  
   }
 
   return (
@@ -44,13 +51,14 @@ const SignIn = () => {
           </p>
           <form className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-foreground dark:text-gray-200">Email</label>
+              <label htmlFor="email" className="block text-sm font-medium text-foreground dark:text-gray-200">Username</label>
               <input
                 id="email"
                 type="email"
                 className="mt-1 block w-full px-3 py-2 border border-input dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm dark:bg-gray-700 dark:text-gray-200"
                 placeholder="Enter your email"
-                onChange={(e) => setInputs({ ...inputs, username: e.target.value })}
+                onChange={(e) => {setInputs({ ...inputs, username: e.target.value });
+                 UsernameInput(e)}}
               />
             </div>
             <div>
@@ -60,7 +68,8 @@ const SignIn = () => {
                 type="password"
                 className="mt-1 block w-full px-3 py-2 border border-input dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm dark:bg-gray-700 dark:text-gray-200"
                 placeholder="Enter your password"
-                onChange={(e) => setInputs({ ...inputs, password: e.target.value })}
+                onChange={(e) => {setInputs({ ...inputs, password: e.target.value });
+             }}
               />
             </div>
             <div>

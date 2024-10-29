@@ -9,7 +9,7 @@ import ThemeFunction from '../context/ThemeContext';
 // import Spinner from './Spinner';
 
 const NavBar = () => {
-  // const [username  , setUsername] =  useState(null);
+  const [username  , setUsername] =  useState("");
     const {DarkTheme, changeTheme} = ThemeFunction();
     const {user, loading} = useUser(); // Type can be inferred
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,6 +20,9 @@ const NavBar = () => {
     if(!user && !loading){
         navigate('/signin');
     }
+    const localusername = localStorage.getItem('username');
+    if(localusername){setUsername(localusername)}
+
    }, [])
 
     const toggleMenu = () => {
@@ -29,6 +32,7 @@ const NavBar = () => {
     const handleLogout = async () => {
 
         localStorage.removeItem('token');
+        localStorage.removeItem('username');
         localStorage.removeItem('user'); // Optional: Clear user data on logout
 
         navigate('/signin'); // Use navigate for redirection
@@ -68,11 +72,11 @@ const NavBar = () => {
                             
 
                           { /* todo : can take username from login and display here  */}
-                                <Avatar name={"Guest"} size={4}/>
+                                <Avatar name={username} size={4}/>
 
 
                                 <span className="font-semibold text-lg hover:text-gray-700 cursor-pointer transition duration-300">
-                                    { 'Guest'}
+                                    { username.slice(0,4)}
                                     {/* Ensure user exists */} 
                                 </span>
                      </div>

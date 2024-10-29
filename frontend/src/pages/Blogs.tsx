@@ -1,15 +1,31 @@
+// import { useEffect } from "react";
 import BlogCard from "../component/BlogCard";
 import BlogsSkeleton from "../component/BlogsSkeleton";
 import NavBar from "../component/Navbar";
 import ThemeFunction from "../context/ThemeContext";
 import Useblogs from "../hooks/Useblogs";
+// import useUser from "../hooks/Useuser";
+// import { useNavigate } from "react-router";
 
 const Blogs = () => {
-  const { blogs, loading } = Useblogs();
+  // const { user, loading: userLoading } = useUser();
+  const { blogs, loading: blogsLoading } = Useblogs();
   const { DarkTheme } = ThemeFunction();
+  // const navigate = useNavigate();
+
+  // useEffect(() => {
+  //   console.log("User loading:", userLoading);
+  //   console.log("User data:", user);
+  
+  //   if (!userLoading && !user) {
+  //     alert("Sign in to view blogs");
+  //     navigate("/signin");
+  //   } implement the redirecting process
+  // }, [user, userLoading, navigate]);
+  
 
   const renderBlogs = () => {
-    if (loading) {
+    if (blogsLoading) {
       return (
         <>
           <BlogsSkeleton />

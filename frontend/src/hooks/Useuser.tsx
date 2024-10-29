@@ -31,8 +31,8 @@ const useUser = () => {
       try {
         // Only parse if cachedData is not null or undefined
         const parsedData = JSON.parse(cachedData);
-        console.log(cachedData);
-        console.log("user")
+        // console.log(cachedData);
+        // console.log("user")
         setUser(parsedData);
       } catch (error) {
         console.error("Error parsing cached user data:", error);
