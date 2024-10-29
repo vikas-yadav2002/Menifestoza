@@ -86,28 +86,25 @@ blogRouter.get("/bulk", async (c) => {
 
 
 
-blogRouter.put("/:id", async (c) => {
+blogRouter.put("/update/:id", async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
-
   try {
     const blogId = Number(c.req.param("id"));
     const body = await c.req.json();
-   
-    // const { success} = updateBlogInput.safeParse(body)
 
-    // if (!success){
-    //   return c.json({
-    //     message : "incorrect content"
-    //   })
-    // }
+    // Validate the input using Zod
+    const { success, error } = updateBlogInput.safeParse(body);
 
-    // if (!blogId || typeof blogId !== 'string') {
-    //   return c.json({ message: "Invalid blog ID" }, 400);
-    // }
+    if (!success) {
+      return c.json({
+        message: "Incorrect content",
+        error: error.errors, // Return Zod validation errors for more context
+      }, 400);
+    }
 
-    // First, check if the post exists
+    // Check if the post exists before attempting an update
     const existingPost = await prisma.post.findUnique({
       where: { id: blogId },
     });
@@ -116,7 +113,7 @@ blogRouter.put("/:id", async (c) => {
       return c.json({ message: "Blog post not found" }, 404);
     }
 
-    // If the post exists, proceed with the update
+    // Update the blog post
     const updatedBlog = await prisma.post.update({
       where: { id: blogId },
       data: {
