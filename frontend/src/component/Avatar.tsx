@@ -1,8 +1,7 @@
-import useUser from "../hooks/Useuser";
-import AvatarSkeleton from "./AvatarSkeleton"; // Ensure this path is correct
+
 
 const Avatar = ({ name, size }: any ) => {
-  const { loading } = useUser();
+
 
   // Function to get initials from the name
   const getInitials = (name: string) => {
@@ -13,10 +12,8 @@ const Avatar = ({ name, size }: any ) => {
       .toUpperCase();
   };
 
-  // Return the skeleton loader while loading is true
-  if (loading) {
-    return <AvatarSkeleton />;
-  }
+  
+  
 
   // Show the avatar with initials after loading is done
   return (

@@ -11,7 +11,7 @@ const BlogSection = ({ title, content, name }: BlogDetails) => {
   const { DarkTheme } = ThemeFunction(); // Access dark theme state
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-6 min-w-full min-h-[100vh]">
       <div className="flex flex-col md:flex-row gap-8">
         {/* Left side: Blog content */}
         <div className="md:w-2/3">

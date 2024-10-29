@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useEffect, useState, } from 'react';
 import {TfiWrite} from "react-icons/tfi";
 import {BsSun, BsMoon, BsList} from "react-icons/bs";
 import {Link, useNavigate} from 'react-router-dom'; // Use useNavigate instead of redirect
@@ -6,7 +6,7 @@ import Avatar from './Avatar'; // Ensure this path is correct
 import manifestoza from '../../public/img/Manifesto2.png';
 import useUser from '../hooks/Useuser';
 import ThemeFunction from '../context/ThemeContext';
-import Spinner from './Spinner';
+// import Spinner from './Spinner';
 
 const NavBar = () => {
   // const [username  , setUsername] =  useState(null);
@@ -16,26 +16,11 @@ const NavBar = () => {
 
     const navigate = useNavigate(); // Initialize useNavigate
 
-    useEffect(() => {
-        if (!user && !loading) {
-            navigate('/login');
-        }
-        const userData = localStorage.getItem('user');
-
-        if (userData) {
-            try {
-                const parsedUserData = JSON.parse(userData);
-                console.log(parsedUserData);
-                // Now you can use the parsed object
-                // Access user details like this:
-                // setUsername(parsedUserData.name)// Example if user has an "email" property
-            } catch (error) {
-                console.error("Error parsing user data from localStorage:", error);
-            }
-        } else {
-            console.log("No user data found in localStorage");
-        }
-    }, []);
+   useEffect(()=>{
+    if(!user && !loading){
+        navigate('/signin');
+    }
+   }, [])
 
     const toggleMenu = () => {
         setIsMenuOpen(prev => !prev);
@@ -52,7 +37,7 @@ const NavBar = () => {
 
     return (
         <nav className={
-            `p-2 shadow-md transition-colors duration-300 z-50 sticky ${
+            `p-2 shadow-md transition-colors duration-300 z-50 sticky top-0  ${
                 DarkTheme ? 'bg-[#1F2937] text-white' : 'bg-[#EDEEF1] text-gray-900'
             }`
         }>
@@ -79,27 +64,18 @@ const NavBar = () => {
                 }>
                     {/* Avatar with hover effect */}
                     <div className="flex items-center space-x-2">
-                        {
-                        loading ? (
-                            <Spinner/>) : (
-                            <>
-                            {/* causing problem have to fix this  */}
+                        
+                            
 
                           { /* todo : can take username from login and display here  */}
-                                <Avatar name={
-                                        user ? "username" : 'Guest'
-                                    }
-                                    size={4}/>
+                                <Avatar name={"Guest"} size={4}/>
 
 
                                 <span className="font-semibold text-lg hover:text-gray-700 cursor-pointer transition duration-300">
-                                    {
-                                    user ? "username" : 'Guest'
-                                }
-                                    {/* Ensure user exists */} </span>
-                            </>
-                        )
-                    } </div>
+                                    { 'Guest'}
+                                    {/* Ensure user exists */} 
+                                </span>
+                     </div>
 
 
                     {/* Dark/Light Mode Toggle Icon */}
