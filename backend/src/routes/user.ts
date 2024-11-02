@@ -71,6 +71,7 @@ Userouter.post("/signin", async (c) => {
   if (!success) {
     return c.json({
       message: "incorrect details",
+      status : 403
     });
   }
 
@@ -83,12 +84,13 @@ Userouter.post("/signin", async (c) => {
   if (!user) {
     return c.json({
       message: "user  not found ",
+      status :403
     });
   }
   const token = await sign({ id: user.id }, c.env.Jwt_secret);
   return c.json({
     token: token,
-    user: user,
+    username : user.name,
   });
 });
 

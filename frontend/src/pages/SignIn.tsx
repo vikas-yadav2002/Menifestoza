@@ -5,6 +5,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { BACKEND_URL } from '../config.ts'
 import Spinner from '../component/Spinner.tsx'
 
+// have to use auth0 for login 
+
 const SignIn = () => {
   const [loading, setLoading] = useState(false);
   const [username , setUsername] = useState("");
@@ -22,9 +24,18 @@ const SignIn = () => {
       const token = response.data;
       localStorage.setItem("token", token.token);
       localStorage.setItem("username" , username)
-      alert("Signed in successfully");
-      setLoading(false);
-      navigate('/blogs')
+
+      if(response.data.status == 403){
+        alert(`${response.data.message}`);
+        setLoading(false);
+      }else{
+        console.log(response)
+        alert("Signed in successfully");
+        localStorage.setItem('username' , response.data.username)
+        setLoading(false);
+        navigate('/')
+      }
+      
     } catch (e) {
       console.log(e)
       console.log(inputs)

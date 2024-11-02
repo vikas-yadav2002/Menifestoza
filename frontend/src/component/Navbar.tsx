@@ -4,22 +4,20 @@ import {BsSun, BsMoon, BsList} from "react-icons/bs";
 import {Link, useNavigate} from 'react-router-dom'; // Use useNavigate instead of redirect
 import Avatar from './Avatar'; // Ensure this path is correct
 import manifestoza from '../../public/img/Manifesto2.png';
-import useUser from '../hooks/Useuser';
+
 import ThemeFunction from '../context/ThemeContext';
 // import Spinner from './Spinner';
 
 const NavBar = () => {
   const [username  , setUsername] =  useState("");
     const {DarkTheme, changeTheme} = ThemeFunction();
-    const {user, loading} = useUser(); // Type can be inferred
+  
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const navigate = useNavigate(); // Initialize useNavigate
 
    useEffect(()=>{
-    if(!user && !loading){
-        navigate('/signin');
-    }
+    
     const localusername = localStorage.getItem('username');
     if(localusername){setUsername(localusername)}
 
@@ -76,7 +74,7 @@ const NavBar = () => {
 
 
                                 <span className="font-semibold text-lg hover:text-gray-700 cursor-pointer transition duration-300">
-                                    { username.slice(0,4)}
+                                    { username}
                                     {/* Ensure user exists */} 
                                 </span>
                      </div>
