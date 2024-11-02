@@ -16,12 +16,10 @@ const BlogCard = ({ author, publishedDate, title, content, id }: BlogCardContent
   const navigate = useNavigate();
 
   // Function to truncate content to 40 words
-  const truncateContent = (text: string, wordLimit: number) => {
+  const truncateContent = (htmlContent: string, wordLimit: number) => {
+    const text = htmlContent.replace(/<[^>]*>/g, ''); // Remove HTML tags
     const words = text.split(' ');
-    if (words.length > wordLimit) {
-      return words.slice(0, wordLimit).join(' ') + '...';
-    }
-    return text;
+    return words.length > wordLimit ? `${words.slice(0, wordLimit).join(' ')}...` : text;
   };
 
   // Function to calculate read time
@@ -89,8 +87,8 @@ const BlogCard = ({ author, publishedDate, title, content, id }: BlogCardContent
         >
           {title}
         </a>
-        <p className={`mt-4 ${DarkTheme ? "text-gray-400" : "text-gray-600"}`}>
-          {truncatedContent}
+        <p className={`mt-4 ${DarkTheme ? "text-gray-400" : "text-gray-600"}`} dangerouslySetInnerHTML={{ __html:truncatedContent  }} >
+          {/* {truncatedContent} */}
         </p>
         <button
           onClick={handleReadMore}

@@ -25,12 +25,12 @@ const BlogSection = ({ title, content, name }: BlogDetails) => {
           <p className={`mb-6 italic ${DarkTheme ? 'text-gray-400' : 'text-gray-500'}`}>
             Published on {new Date(22 / 3 / 2024).toLocaleDateString()}
           </p>
-          <div className={`prose max-w-none text-xl font-semibold leading-relaxed ${DarkTheme ? 'text-gray-300' : 'text-slate-800'}`}>
-            {content.split('\n').map((paragraph, index) => (
+          <div className={`prose max-w-none text-xl font-semibold leading-relaxed ${DarkTheme ? 'text-gray-300' : 'text-slate-800'}`} dangerouslySetInnerHTML={{ __html: content }}>
+            {/* {content.split('\n').map((paragraph, index) => (
               <p key={index} className="mb-4">
                 {paragraph}
               </p>
-            ))}
+            ))} */}
           </div>
         </div>
 
