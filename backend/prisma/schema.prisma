@@ -13,8 +13,30 @@ model User {
   name        String?
   password    String
   description String?  // New optional field
-  posts       Post[]
+  posts       Post[] 
+
+  // Join table for many-to-many relationship
+  followers   Follower[] @relation("UserFollowers")
+  following   Follower[] @relation("UserFollowing")
+  savedPost   Post[]    @relation("savedPost")
+  likedPost   Post[] @relation("likedPost")
 }
+
+// Define a join table for followers
+model Follower {
+  id         String @id @default(uuid())
+  followerId String
+  followingId String
+
+  follower   User @relation("UserFollowers", fields: [followerId], references: [id])
+  following  User @relation("UserFollowing", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId]) // Prevent duplicate follower-following pairs
+}
+
+
+
+
 
 model Post {
   id        Int      @id @default(autoincrement())
@@ -24,4 +46,7 @@ model Post {
   author    User     @relation(fields: [authorId], references: [id])
   authorId  String   
   date      DateTime @default(now())
+  likes     Int      @default(0) // Default to 0, you can increase this when a post is liked
+  likedBy   User[]   @relation("likedPost") // Establish many-to-many relation with User
+  savedBy  User[]   @relation("savedPost")
 }
