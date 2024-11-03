@@ -7,6 +7,7 @@ import Blogs from './pages/Blogs';
 import CreateBlog from './pages/CreateBlog';
 import { ThemeProvider } from './context/ThemeContext';
 import { useState } from 'react';
+import ProfilePage from './pages/ProfilePage';
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
             <Route path="/blogs" element={ <Blogs />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/signin" element={<SignIn />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/:id" element={<Blog />} />
             <Route path="/createblog" element={<CreateBlog />} />
           </Routes>
