@@ -22,9 +22,9 @@ blogRouter.post("/create", async (c) => {
 
     const body = await c.req.json();
     const { success } = createBlogInput.safeParse(body);
-    if(body.title == "" || body.content == ""){
+    if (body.title == "" || body.content == "") {
       return c.json({
-        message : "please fill all the inputs",
+        message: "please fill all the inputs",
       })
     }
 
@@ -53,7 +53,6 @@ blogRouter.post("/create", async (c) => {
   }
 });
 
-
 blogRouter.get("/bulk", async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
@@ -62,13 +61,13 @@ blogRouter.get("/bulk", async (c) => {
   try {
     const blog = await prisma.post.findMany(
       {
-        select : {
-          title : true,
-          content : true,
-          id : true,
-          author :{
-            select :{
-              name : true
+        select: {
+          title: true,
+          content: true,
+          id: true,
+          author: {
+            select: {
+              name: true
             }
           }
         }
@@ -83,8 +82,6 @@ blogRouter.get("/bulk", async (c) => {
     });
   }
 });
-
-
 
 blogRouter.put("/update/:id", async (c) => {
   const prisma = new PrismaClient({
@@ -126,7 +123,7 @@ blogRouter.put("/update/:id", async (c) => {
       message: "Successfully updated blog",
       blog: updatedBlog,
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
     return c.json(
       {
@@ -138,48 +135,131 @@ blogRouter.put("/update/:id", async (c) => {
   }
 });
 
-
 blogRouter.get("/Find/:id", async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
   try {
     const blogId = Number(c.req.param("id"));
-    if(!blogId){
+    if (!blogId) {
       return c.json({
-        message : "provide correct id"
+        message: "provide correct id"
       })
     }
     console.log("hello")
     const Blog = await prisma.post.findUnique({
-      where : {
-        id : blogId
+      where: {
+        id: blogId
       },
-      select :{
-        title : true ,
-        content : true ,
-        author : {
-          select : {
-            name : true
+      select: {
+        title: true,
+        content: true,
+        author: {
+          select: {
+            name: true
           }
         }
-        
+
       }
-     
+
     })
 
-     if(Blog){
-       return c.json({
-         blog : Blog
-       })
-     }
+    if (Blog) {
+      return c.json({
+        blog: Blog
+      })
+    }
 
-   
+
   } catch (err) {
-    
+
     return c.json({
       message: "Errror while fetching blog ",
       error: err
     });
   }
 });
+
+blogRouter.put("/like/:id", async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  try {
+    const blogId = Number(c.req.param('id'));
+    const userId = c.get("userId");
+    if (!userId || !blogId) {
+      return c.json({
+        message: "Please Provide all details",
+        status: 403,
+      })
+    }
+    const postExists = await prisma.post.findUnique({
+      where: { id: blogId },
+    });
+    
+    if (!postExists) {
+      return c.json({ message: "Post not found", status: 404 });
+    }
+
+
+    const alreadyliked = await prisma.user.findFirst({
+      where: {
+        id: userId, // Check for the specific user
+        likedPost: {
+          some: {
+            id: blogId, // Check if the likedPosts array contains the blogId
+          },
+        },
+      },
+    });
+
+    if (alreadyliked) {
+      return c.json({
+        msg: "User has already liked this post."
+      })
+    } else {
+
+
+      //inrcreement the like of the blogid
+      const [postUpdateResponse, userUpdateResponse] = await prisma.$transaction([
+
+        //check if user has already liked it or not 
+
+        // Update the post to increment likes and connect the user
+        prisma.post.update({
+          where: { id: blogId },
+          data: {
+            likes: {
+              increment: 1, // Increment the likes count
+            },
+            likedBy: {
+              connect: { id: userId }, // Connect the user who liked the post
+            },
+          },
+        }),
+
+        // Update the user to add the liked post
+        prisma.user.update({
+          where: { id: userId },
+          data: {
+            likedPost: {
+              connect: { id: blogId }, // Connect the post to the user’s likedPosts
+            },
+          },
+        }),
+      ]);
+
+      console.log('Post updated:', postUpdateResponse);
+      console.log('User updated with liked post:', userUpdateResponse);
+
+      return c.json({
+        Postupdate: postUpdateResponse,
+        userupadte: userUpdateResponse
+      })
+    }
+
+  } catch (e: any) {
+    console.log("error ", e)
+  }
+})

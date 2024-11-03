@@ -57,8 +57,6 @@ Userouter.post("/signup", async (c) => {
   }
 });
 
-
-
 // signin ----->
 Userouter.post("/signin", async (c) => {
   const prisma = new PrismaClient({
@@ -93,7 +91,7 @@ Userouter.post("/signin", async (c) => {
     username : user.name,
   });
 });
-
+//details --->>>>
 Userouter.get("/detail" , async (c)=>{
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
@@ -128,4 +126,77 @@ Userouter.get("/detail" , async (c)=>{
   }
   
   
+})
+
+Userouter.put('/save/:id' , async (c)=>{
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  try{
+
+  
+  const userId = c.get('userId');
+  const blogId = Number(c.req.param('id'));
+ console.log(userId , blogId)
+  if(!userId || !blogId){
+    return c.json({
+      msg : "Provide all the details",
+      status : 404 ,
+    })
+  }
+
+  const existingBlog = await prisma.post.findFirst({
+    where : {
+      id : blogId
+    }
+  })
+
+  if(!existingBlog){
+    return c.json({
+      msg : " This post Doesn't Exist ",
+      status : 404
+    })
+  }
+
+  const [userUpdateResponse , postUpdateResponse] = await prisma.$transaction([
+    prisma.post.update({
+      where:{
+        id : blogId
+      }, 
+      data :{
+        savedBy :{
+          connect :{
+            id: userId
+          }
+        }
+      }
+    }),
+
+    prisma.user.update({
+      where :{
+        id  : userId
+      },
+      data :{
+        savedPost :{
+          connect :{
+            id : blogId
+          }
+        }
+      }
+    })
+  ])
+
+  return c.json({
+    userUpdateResponse,
+    postUpdateResponse
+  })
+
+}catch(e : any){
+      return c.json({
+        error : e
+      })
+}
+
+
 })

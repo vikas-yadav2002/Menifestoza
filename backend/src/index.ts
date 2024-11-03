@@ -20,7 +20,7 @@ app.get('/' , async (c)=>{
       });
 })
 
-app.use("/api/v1/blog/*", async (c, next) => {
+app.use("/api/v1/*", async (c, next) => {
     const headers = c.req.header("authorization") || "";
     const token = headers.split(" ")[1];
 
