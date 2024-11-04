@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
-import { jwt, sign , verify } from "hono/jwt";
+import { jwt, sign, verify } from "hono/jwt";
 import { signupInput, signinInput } from "@100xdevs/medium-common";
-import  { jwtDecode } from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 export const Userouter = new Hono<{
   Bindings: {
@@ -14,7 +14,7 @@ export const Userouter = new Hono<{
     userId: string;
   };
 }>();
-
+//signup
 Userouter.post("/signup", async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
@@ -22,11 +22,11 @@ Userouter.post("/signup", async (c) => {
 
   try {
     const body = await c.req.json();
-    const { success} = signupInput.safeParse(body)
+    const { success } = signupInput.safeParse(body)
 
-    if (!success){
+    if (!success) {
       return c.json({
-        message : "incorrect details"
+        message: "incorrect details"
       })
     }
     // Check if user already exists
@@ -41,7 +41,7 @@ Userouter.post("/signup", async (c) => {
       data: {
         email: body.username,
         password: body.password,
-        name : body.name ,
+        name: body.name,
       },
     });
     console.log("JWT Secret:", c.env.Jwt_secret);
@@ -69,11 +69,11 @@ Userouter.post("/signin", async (c) => {
   if (!success) {
     return c.json({
       message: "incorrect details",
-      status : 403
+      status: 403
     });
   }
 
-  
+
   const user = await prisma.user.findUnique({
     where: {
       email: body.username,
@@ -82,121 +82,211 @@ Userouter.post("/signin", async (c) => {
   if (!user) {
     return c.json({
       message: "user  not found ",
-      status :403
+      status: 403
     });
   }
   const token = await sign({ id: user.id }, c.env.Jwt_secret);
   return c.json({
     token: token,
-    username : user.name,
+    username: user.name,
   });
 });
+
 //details --->>>>
-Userouter.get("/detail" , async (c)=>{
+Userouter.get("/detail", async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
   // const token  = localStorage.getItem("token");
   const headers = c.req.header("authorization") || "";
   const token = headers.split(" ")[1];
-  if(!token){
+  if (!token) {
     return c.json({
-      msg : "you are not logged in",
+      msg: "you are not logged in",
     })
   }
-  try{
+  try {
     const decoded = await verify(token, c.env.Jwt_secret);
     const userDetails = decoded;
     const userFind = await prisma.user.findFirst({
-      where : {
-        id : userDetails.id || "",
+      where: {
+        id: userDetails.id || "",
       }
     })
 
     return c.json({
       userFind,
-      
+
     })
-  }catch(e){
+  } catch (e) {
     console.log(e)
     return c.json({
-     msg : "error",
-      error : e,
+      msg: "error",
+      error: e,
     })
   }
-  
-  
+
+
 })
 
-Userouter.put('/save/:id' , async (c)=>{
+//save post
+Userouter.put('/save/:id', async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
-  try{
+  try {
 
-  
-  const userId = c.get('userId');
-  const blogId = Number(c.req.param('id'));
- console.log(userId , blogId)
-  if(!userId || !blogId){
-    return c.json({
-      msg : "Provide all the details",
-      status : 404 ,
-    })
-  }
 
-  const existingBlog = await prisma.post.findFirst({
-    where : {
-      id : blogId
-    }
-  })
-
-  if(!existingBlog){
-    return c.json({
-      msg : " This post Doesn't Exist ",
-      status : 404
-    })
-  }
-
-  const [userUpdateResponse , postUpdateResponse] = await prisma.$transaction([
-    prisma.post.update({
-      where:{
-        id : blogId
-      }, 
-      data :{
-        savedBy :{
-          connect :{
-            id: userId
-          }
-        }
-      }
-    }),
-
-    prisma.user.update({
-      where :{
-        id  : userId
-      },
-      data :{
-        savedPost :{
-          connect :{
-            id : blogId
-          }
-        }
-      }
-    })
-  ])
-
-  return c.json({
-    userUpdateResponse,
-    postUpdateResponse
-  })
-
-}catch(e : any){
+    const userId = c.get('userId');
+    const blogId = Number(c.req.param('id'));
+    console.log(userId, blogId)
+    if (!userId || !blogId) {
       return c.json({
-        error : e
+        msg: "Provide all the details",
+        status: 404,
       })
-}
+    }
+
+    const existingBlog = await prisma.post.findFirst({
+      where: {
+        id: blogId
+      }
+    })
+
+    if (!existingBlog) {
+      return c.json({
+        msg: " This post Doesn't Exist ",
+        status: 404
+      })
+    }
+
+    const [userUpdateResponse, postUpdateResponse] = await prisma.$transaction([
+      prisma.post.update({
+        where: {
+          id: blogId
+        },
+        data: {
+          savedBy: {
+            connect: {
+              id: userId
+            }
+          }
+        }
+      }),
+
+      prisma.user.update({
+        where: {
+          id: userId
+        },
+        data: {
+          savedPost: {
+            connect: {
+              id: blogId
+            }
+          }
+        }
+      })
+    ])
+
+    return c.json({
+      userUpdateResponse,
+      postUpdateResponse
+    })
+
+  } catch (e: any) {
+    return c.json({
+      error: e
+    })
+  }
 
 
 })
+
+//follower
+Userouter.put('/follow/:id', async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  try {
+    const userId = c.get('userId');
+    const authorId = c.req.param('id');
+
+    // Check if the author exists
+    const author = await prisma.user.findUnique({
+      where: {
+        id: authorId,
+      },
+    });
+
+    if (!author) {
+      return c.json({
+        msg: "This author doesn't exist",
+        status: 404,
+      });
+    }
+    const existingFollow = await prisma.follower.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: userId,
+          followingId: authorId,
+        },
+      },
+    });
+
+    if (existingFollow) {
+      console.log('User is already following the author');
+      return;
+    }
+
+   
+
+    // Use a transaction to create the follow record and update the follower-following relationship
+
+    const [follow, updatedUserFollowing, updatedUserFollowers] = await prisma.$transaction([
+      prisma.follower.create({
+        data: {
+          followingId: authorId,
+          followerId: userId,
+        },
+      }),
+      prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          following: {
+            connect: { id: authorId },
+          },
+        },
+      }),
+      prisma.user.update({
+        where: {
+          id: authorId,
+        },
+        data: {
+          followers: {
+            connect: { id: userId },
+          },
+        },
+      }),
+    ]);
+    
+
+
+
+    return  c.json({
+      msg : "Followed Succesfully",
+      data : [follow, updatedUserFollowing, updatedUserFollowers]
+    })
+  }
+  catch (error: any) {
+    console.error("Transaction error:", error);
+    return c.json({ error: "Failed to follow user", details: error.message });
+  }
+  finally {
+    await prisma.$disconnect();
+  }
+});
+
