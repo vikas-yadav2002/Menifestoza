@@ -237,49 +237,38 @@ Userouter.put('/follow/:id', async (c) => {
 
     if (existingFollow) {
       console.log('User is already following the author');
-      return;
+      return  c.json({
+        msg : "user is already following author"
+      })
+      
     }
-
-   
-
-    // Use a transaction to create the follow record and update the follower-following relationship
-
-    const [follow, updatedUserFollowing, updatedUserFollowers] = await prisma.$transaction([
-      prisma.follower.create({
-        data: {
-          followingId: authorId,
-          followerId: userId,
-        },
-      }),
-      prisma.user.update({
-        where: {
-          id: userId,
-        },
-        data: {
-          following: {
-            connect: { id: authorId },
-          },
-        },
-      }),
-      prisma.user.update({
-        where: {
-          id: authorId,
-        },
-        data: {
-          followers: {
-            connect: { id: userId },
-          },
-        },
-      }),
-    ]);
     
-
-
-
-    return  c.json({
-      msg : "Followed Succesfully",
-      data : [follow, updatedUserFollowing, updatedUserFollowers]
-    })
+    const follow = await prisma.follower.create({
+      data: {
+        followerId: userId,   // The user who is following (Bittu Yadav)
+        followingId: authorId, // The user being followed (Vikas Yadav)
+      },
+    });
+    
+    // Retrieve the updated records
+    const updatedFollowingList = await prisma.user.findFirst({
+      where: { id: userId }, // userId of "Bittu Yadav"
+      include: { follows: true },
+    });
+    
+    const updatedFollowerList = await prisma.user.findFirst({
+      where: { id: authorId }, // authorId of "Vikas Yadav"
+      include: { followedBy: true },
+    });
+    
+    return c.json({
+      updatedFollowingList,
+      updatedFollowerList,
+      follow,
+    });
+   
+   
+    
   }
   catch (error: any) {
     console.error("Transaction error:", error);

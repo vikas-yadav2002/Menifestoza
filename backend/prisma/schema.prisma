@@ -12,31 +12,30 @@ model User {
   email       String   @unique
   name        String?
   password    String
-  description String?  // New optional field
+  description String?
   posts       Post[] 
 
-  // Join table for many-to-many relationship
-  followers   Follower[] @relation("UserFollowers")
-  following   Follower[] @relation("UserFollowing")
-  savedPost   Post[]    @relation("savedPost")
-  likedPost   Post[] @relation("likedPost")
+  // Represents the users this user is following
+  follows      Follower[] @relation("FollowingRelation")
+
+  // Represents the users that follow this user
+  followedBy   Follower[] @relation("FollowerRelation")
+
+  savedPost    Post[]    @relation("savedPost")
+  likedPost    Post[]    @relation("likedPost")
 }
 
-// Define a join table for followers
 model Follower {
-  id         String @id @default(uuid())
-  followerId String
-  followingId String
+  id           String   @id @default(uuid())
+  followerId   String
+  followingId  String
 
-  follower   User @relation("UserFollowers", fields: [followerId], references: [id])
-  following  User @relation("UserFollowing", fields: [followingId], references: [id])
+  // Define the relation fields on the Follower model
+  follower     User     @relation("FollowerRelation", fields: [followerId], references: [id])
+  following    User     @relation("FollowingRelation", fields: [followingId], references: [id])
 
   @@unique([followerId, followingId]) // Prevent duplicate follower-following pairs
 }
-
-
-
-
 
 model Post {
   id        Int      @id @default(autoincrement())
@@ -48,5 +47,5 @@ model Post {
   date      DateTime @default(now())
   likes     Int      @default(0) // Default to 0, you can increase this when a post is liked
   likedBy   User[]   @relation("likedPost") // Establish many-to-many relation with User
-  savedBy  User[]   @relation("savedPost")
+  savedBy   User[]   @relation("savedPost")
 }
